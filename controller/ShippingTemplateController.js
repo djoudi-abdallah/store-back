@@ -2,7 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 // Create a new shipping template
-cexports.createShippingTemplate = async (req, res) => {
+exports.createShippingTemplate = async (req, res) => {
   try {
     const { address, cost, duration, description } = req.body;
     const shippingTemplate = await prisma.shippingTemplate.create({

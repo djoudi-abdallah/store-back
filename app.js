@@ -10,7 +10,7 @@ const orderRoutes = require("./router/OrderRouter");
 const cartRoutes = require("./router/CarteRouter");
 const orderDetailRoutes = require("./router/OrderDetailesRouter");
 const shippingRoutes = require("./router/ShippingRouter");
-const shippingTemplateRoutes = require("./routes/shippingTemplateRoutes");
+const shippingTemplateRoutes = require("./router/ShippingtemplateRouter");
 app.use("/shipping-templates", shippingTemplateRoutes);
 app.use("/shippings", shippingRoutes);
 app.use("/order-details", orderDetailRoutes);
