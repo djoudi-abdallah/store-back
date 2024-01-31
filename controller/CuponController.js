@@ -4,15 +4,42 @@ const prisma = new PrismaClient();
 // Create a new coupon
 exports.createCoupon = async (req, res) => {
   try {
-    const { code, percentage, amount, expiration } = req.body;
+    const { code, couponType, value, expiration, productId } = req.body;
+
+    let couponData = {
+      code,
+      expiration,
+    };
+
+    if (couponType === "percentage") {
+      couponData = {
+        ...couponData,
+        percentage: value,
+        amount: null,
+      };
+    } else if (couponType === "amount") {
+      couponData = {
+        ...couponData,
+        percentage: null,
+        amount: value,
+      };
+    } else {
+      return res.status(400).json({ error: "Invalid coupon type." });
+    }
+
+    // Create the coupon with the appropriate fields set
     const coupon = await prisma.coupon.create({
       data: {
-        code,
-        percentage,
-        amount,
-        expiration,
+        ...couponData,
+        products: {
+          connect: { id: productId }, // Connect the coupon to the specified product
+        },
+      },
+      include: {
+        products: true, // Include associated products in the response
       },
     });
+
     res.json(coupon);
   } catch (error) {
     res.status(500).json({ error: "Unable to create a coupon." });

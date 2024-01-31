@@ -5,14 +5,63 @@ const prisma = new PrismaClient();
 exports.createOrderDetail = async (req, res) => {
   try {
     const { orderId, productId, quantity, unitPrice } = req.body;
+
+    // Find the product by ID to check if it has an associated coupon
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      include: {
+        coupons: true, // Include associated coupons in the response
+      },
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: "Product not found." });
+    }
+
+    // Initialize discount to 0
+    let discount = 0;
+
+    // Check if the product has associated coupons
+    if (product.coupons && product.coupons.length > 0) {
+      const coupon = product.coupons[0]; // Assuming there's only one associated coupon
+
+      // Check if the coupon has a percentage
+      if (coupon.percentage !== null) {
+        // Calculate the discount based on the percentage
+        discount = (coupon.percentage / 100) * (quantity * unitPrice);
+      } else if (coupon.amount !== null) {
+        // Use the coupon amount as the discount
+        discount = coupon.amount;
+      }
+    }
+
+    // Calculate the totalAmount for the specific order detail
+    const totalAmount = quantity * unitPrice;
+
+    // Calculate the final totalAmount after applying the discount
+    const finalTotalAmount = totalAmount - discount;
+
+    // Create the order detail
     const orderDetail = await prisma.orderDetail.create({
       data: {
         orderIdd: orderId, // Correct the typo in the column name
         productId,
         quantity,
         unitPrice,
+        discount, // Store the discount amount for reference
       },
     });
+
+    // Update the totalAmount on the associated order
+    await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        totalAmount: {
+          increment: finalTotalAmount,
+        },
+      },
+    });
+
     res.json(orderDetail);
   } catch (error) {
     res.status(500).json({ error: "Unable to create an order detail." });

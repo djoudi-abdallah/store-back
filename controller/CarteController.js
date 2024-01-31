@@ -4,13 +4,16 @@ const prisma = new PrismaClient();
 // Create a new cart
 exports.createCart = async (req, res) => {
   try {
-    const { nbProduct } = req.body;
+    const { nbProduct, productId } = req.body;
     const userId = req.user.userId; // Get the user's ID from req.user
 
     const cart = await prisma.cart.create({
       data: {
         nbProduct,
         userId,
+        product: {
+          connect: { id: productId }, // Connect the cart to the specified product
+        },
       },
     });
     res.json(cart);
