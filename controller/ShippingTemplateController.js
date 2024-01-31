@@ -15,6 +15,7 @@ exports.createShippingTemplate = async (req, res) => {
     });
     res.json(shippingTemplate);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Unable to create a shipping template." });
   }
 };
