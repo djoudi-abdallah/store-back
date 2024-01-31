@@ -17,7 +17,7 @@ exports.createOrder = async (req, res) => {
       },
     });
 
-    // Calculate the total amount by summing up the product prices in the carts
+    // Calculate the total amount by summing up the prices of products in the carts
     const totalAmount = carts.reduce((total, cart) => {
       return total + cart.product.price * cart.nbProduct;
     }, 0);
@@ -28,7 +28,7 @@ exports.createOrder = async (req, res) => {
         nbProduct: carts.length, // Number of products is the number of carts
         totalAmount,
         status,
-        userId,
+        userId, // Provide the userId here
       },
     });
 
@@ -40,13 +40,19 @@ exports.createOrder = async (req, res) => {
           productId: cart.product.id,
           quantity: cart.nbProduct,
           unitPrice: cart.product.price,
-          discount: 0, // You can calculate discounts if needed
+          // You can calculate discounts if needed
         },
       });
     }
+    await prisma.cart.deleteMany({
+      where: {
+        userId: userId, // Specify the userId to delete carts only for that user
+      },
+    });
 
     res.json(order);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Unable to create an order." });
   }
 };

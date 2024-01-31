@@ -42,6 +42,7 @@ exports.createCoupon = async (req, res) => {
 
     res.json(coupon);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Unable to create a coupon." });
   }
 };

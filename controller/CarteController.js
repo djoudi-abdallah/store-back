@@ -11,16 +11,16 @@ exports.createCart = async (req, res) => {
       data: {
         nbProduct,
         userId,
-        product: {
-          connect: { id: productId }, // Connect the cart to the specified product
-        },
+        productId, // Assign the productId directly to the cart
       },
     });
     res.json(cart);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Unable to create a cart." });
   }
 };
+
 
 // Get all carts
 exports.getAllCarts = async (req, res) => {
